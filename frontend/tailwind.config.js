@@ -4,7 +4,12 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
+    
     extend: {
+      fontFamily: {
+      'sans': ['system-ui'],
+      'mono': ['SFMono-Regular'],
+      },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0.1' },
