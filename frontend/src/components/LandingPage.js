@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const LandingPage = () => {
@@ -6,8 +7,14 @@ const LandingPage = () => {
   const [responseMessage, setResponseMessage] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
   const [selectedLearningStyle, setselectedLearningStyle] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const popularSuggestions = ['Data Science', 'AI/ML', 'Web Development', 'Mathematics'];
+
   const sectionRefs = useRef([]); 
+  const glassDivRef1 = useRef(null);
+  const glassDivRef2 = useRef(null);
+  const navigate = useNavigate();
 
   //Track the changes in the input box
   const handleInputChange = (event) => {
@@ -44,6 +51,7 @@ const LandingPage = () => {
   //Handle the response for the second question: How confident are you with this topic?, then move user to the next question
   const handleComplexityOption = async(option) => {
     setSelectedOption(option);
+    
     try{
       //Send the selected option to  Flask API
       const response = await axios.post("http://127.0.0.1:5000/api/submit",{
@@ -65,36 +73,86 @@ const LandingPage = () => {
   //Handle the response for the last question: What type of learner are you? 
   const handleLearningStyleOption = async(option) => {
     setselectedLearningStyle(option);
+    setLoading(true);
+    let resultData={};
     try{
       //Send the selected option to  Flask API
       const response = await axios.post("http://127.0.0.1:5000/api/submit",{
         input: option,
         learningStyle: true,
       });
+
+      //respond from backend API
+      resultData = response.data;
+      
     } catch(error) {
       console.error("Error submitting option:", error);
-    }
+       
+    }setTimeout(() => {
+        // Add default error result data
+        resultData = { error: 'Failed to fetch results. Using default data.' };
+        setLoading(false); // Stop the loading phase after the delay
+        navigate('/results', { state: { result: resultData } });
+      }, 3000);
   };
   //Scrolling to the top of the next page (but this one havent work yet)
   useEffect(() => {
-    const sections = document.querySelectorAll('section');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.scrollIntoView({ behavior: 'smooth' });
+            // Add a class to trigger the slide-in effect
+            entry.target.classList.add('animate-slideIn');
+          } else {
+            // Optionally: Remove the class when out of view
+            entry.target.classList.remove('animate-slideIn');
           }
         });
       },
-      { threshold: 0.1 } // Adjust this threshold based on when you want the section to scroll
+      { threshold: 0.1 } // Trigger when 10% of the section is in view
     );
-    sections.forEach((section) => observer.observe(section));
-
+  
+    // Observe Section 2
+    if (glassDivRef1.current) {
+      observer.observe(glassDivRef1.current);
+    }
+    if (glassDivRef2.current) {
+      observer.observe(glassDivRef2.current);
+    }
+  
+    // Clean up observer when component unmounts
     return () => observer.disconnect();
   }, []);
 
   return (
     <div className="scroll-snap-y-mandatory h-screen overflow-y-scroll">
+    {/* Show a loading indicator when loading is true */}
+    {loading ? (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-fuchsia-900 to-blue-900">
+        <svg
+          className="animate-spin h-12 w-12 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+        <div className="text-white text-4xl mt-4 text-bold">Loading...</div>
+      </div>
+    ) : (
+      <>
       {/* Section 1 */}
       <section
         ref={(el) => (sectionRefs.current[0] = el)} // Store section reference
@@ -148,7 +206,8 @@ const LandingPage = () => {
         style={{ backgroundImage: 'url(/webbg2.jpg)'}}
       >
         {/*Glass div*/}
-        <div className="bg-white bg-opacity-10 backdrop-blur-lg w-full h-9/10 shadow-lg px-30 pb-20 pt-20 m-20 rounded-2xl border border-transparent flex flex-col items-center animate-fadeIn">
+        <div className="bg-white bg-opacity-10 backdrop-blur-lg w-full h-9/10 shadow-lg px-30 pb-20 pt-20 m-20 rounded-2xl border border-transparent flex flex-col items-center animate-fadeIn"
+        ref={glassDivRef1}>
           <h2 className="text-2xl m-20 mt-10 mb-2 text-justify text-gray-300 font-sans text-center">Before we proceed, let's personalize your learning experience... </h2>
           <h1 className="text-6xl mx-20 mb-5 mt-10 text-justify font-bold font-sans"> How confident are you with this topic?</h1>
         
@@ -181,8 +240,9 @@ const LandingPage = () => {
         style={{ backgroundImage: 'url(/web3.jpg)'}}
       >
         {/*Glass div*/}
-        <div className="bg-white bg-opacity-10 backdrop-blur-lg w-full h-9/10 shadow-lg px-30 pb-20 pt-20 m-20 rounded-2xl border border-transparent flex flex-col items-center">
-          <h2 className="text-2xl m-20 mt-10 mb-2 text-justify text-gray-300 font-sans text-center">Before we proceed, let's personalize your learning experience... </h2>
+        <div className="bg-white bg-opacity-10 backdrop-blur-lg w-full h-9/10 shadow-lg px-30 pb-20 pt-20 m-20 rounded-2xl border border-transparent flex flex-col items-center"
+        ref={glassDivRef2}>
+          <h2 className="text-2xl m-20 mt-10 mb-2 text-justify text-gray-300 font-sans text-center">Just one more question... </h2>
           <h1 className="text-6xl mx-20 mb-5 mt-10 text-justify font-bold font-sans"> What type of learner are you?</h1>
         
           <div className="flex flex-wrap justify-center mt-7 mb-10 animate-slideIn">
@@ -207,7 +267,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-    </div>
+      </>
+    )}
+    </div> 
     );
 };
 
