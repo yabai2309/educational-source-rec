@@ -2,14 +2,14 @@ import certifi
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
-
+import os
 #Initiate app
 app = Flask(__name__)
 CORS(app)
 
 #Connect to MongoDB database with the connection string
 client = MongoClient(
-    "mongodb+srv://hackfest:admin123@educationaldatabase.7ts1s.mongodb.net/?retryWrites=true&w=majority&appName=EducationalDatabase",
+    MongoClient(os.getenv("MONGODB_URI")),
     tlsCAFile=certifi.where()
 )
 db_courses = client['courseDB']
