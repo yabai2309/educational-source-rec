@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const ResultsPage = () => {
   const location = useLocation();  // Get the location object
@@ -9,7 +10,19 @@ const ResultsPage = () => {
   console.log('Result Data:', resultData);
 
   return (
-    <div className="min-h-screen bg-gray-800 flex items-center justify-center text-white">
+    <div className="min-h-screen bg-cover flex items-center justify-center text-white"
+    style={{ backgroundImage: 'url(/webbg.jpg)'}}>
+      {/* Navigation bar */}
+      <nav className="fixed top-0 w-full z-50 text-white bg-white bg-opacity-10 backdrop-blur-lg ">
+        <div className="container mx-auto flex justify-between items-center py-7 px-6">
+          <Link to="/" className="text-xl font-bold">ECR</Link> {/* Use Link for routing */}
+          <div className="space-x-6">
+            <Link to="/" className="hover:underline">Home</Link> {/* Reference to the HomePage component */}
+            <Link to="/results" className="hover:underline hover:bold ">Result</Link> {/* Reference to FeaturesPage component */}
+            <Link to="/tracking" className="hover:underline">Progress</Link> {/* Reference to PricingPage component */}
+          </div>
+        </div>
+      </nav>
       <div className="bg-gray-200 bg-opacity-10 backdrop-blur-lg rounded-2xl border shadow-lg w-4/5 max-w-4xl p-10">
         <h1 className="text-4xl font-bold mb-6">Course Details</h1>
         

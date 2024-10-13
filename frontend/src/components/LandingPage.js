@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   const [inputValue, setInputValue] = useState('');
@@ -130,6 +131,16 @@ const LandingPage = () => {
 
   return (
     <div className="scroll-snap-y-mandatory h-screen overflow-y-scroll">
+    <nav className="fixed top-0 w-full z-50 text-white bg-white bg-opacity-10 backdrop-blur-lg ">
+        <div className="container mx-auto flex justify-between items-center py-6 px-6">
+          <Link to="/" className="text-xl font-bold">ECR</Link> {/* Use Link for routing */}
+          <div className="space-x-6">
+            <Link to="/" className="hover:underline">Home</Link> {/* Reference to the HomePage component */}
+            <Link to="/results" className="hover:underline hover:bold ">Result</Link> {/* Reference to FeaturesPage component */}
+            <Link to="/tracking" className="hover:underline">Progress</Link> {/* Reference to PricingPage component */}
+          </div>
+        </div>
+      </nav>
     {/* Show a loading indicator when loading is true */}
     {loading ? (
       <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-fuchsia-900 to-blue-900">
