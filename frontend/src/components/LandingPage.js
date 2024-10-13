@@ -6,7 +6,7 @@ const LandingPage = () => {
   const [inputValue, setInputValue] = useState('');
   const [responseMessage, setResponseMessage] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
-  const [selectedLearningStyle, setselectedLearningStyle] = useState('');
+  const [selectedLearningStyle, setSelectedLearningStyle] = useState('');
   const [loading, setLoading] = useState(false);
 
   const popularSuggestions = ['Data Science', 'AI/ML', 'Web Development', 'Mathematics'];
@@ -71,29 +71,33 @@ const LandingPage = () => {
   };
 
   //Handle the response for the last question: What type of learner are you? 
-  const handleLearningStyleOption = async(option) => {
-    setselectedLearningStyle(option);
-    setLoading(true);
-    let resultData={};
-    try{
-      //Send the selected option to  Flask API
-      const response = await axios.post("http://127.0.0.1:5000/api/submit",{
-        input: option,
-        learningStyle: true,
-      });
+  const handleLearningStyleOption = async (option) => {
+    setSelectedLearningStyle(option);  // Save learning style
 
-      //respond from backend API
-      resultData = response.data;
-      
-    } catch(error) {
-      console.error("Error submitting option:", error);
-       
-    }setTimeout(() => {
-        // Add default error result data
-        resultData = { error: 'Failed to fetch results. Using default data.' };
-        setLoading(false); // Stop the loading phase after the delay
+    // Ensure all inputs are collected
+    if (inputValue && selectedOption && option) {
+      setLoading(true);  // Show loading indicator
+
+      // Prepare all the data in one object
+      const allData = {
+        topic: inputValue,         // Topic entered by user
+        complexity: selectedOption,  // Complexity selected by user
+        learningStyle: option,       // Learning style selected by user
+      };
+
+      try {
+        // Send all data in a single request to the back-end
+        const response = await axios.post('http://127.0.0.1:5000/api/submit', allData);
+        const resultData = response.data;  // Get result from back-end
+        setLoading(false);  // Stop loading indicator
+
+        // Navigate to the results page with the response data
         navigate('/results', { state: { result: resultData } });
-      }, 3000);
+      } catch (error) {
+        console.error('Error submitting data:', error);
+        setLoading(false);
+      }
+    }
   };
   //Scrolling to the top of the next page (but this one havent work yet)
   useEffect(() => {
